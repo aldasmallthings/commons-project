@@ -9,7 +9,7 @@ import { Model, Transaction } from 'objection';
 import pg from 'pg';
 import config from './config';
 import expressConfig from './express';
-import knexConfig from './models/knexfile';
+import * as knexConfig from './models/knexfile';
 
 const logger = console as any;
 
@@ -64,6 +64,7 @@ export async function main(options: IMainOptions) {
 
 if (require.main === module) {
   try {
+    /* tslint:disable-next-line:no-floating-promises */
     main({ env: config.NODE_ENV as Env });
   } catch (err) {
     logger.error(err);

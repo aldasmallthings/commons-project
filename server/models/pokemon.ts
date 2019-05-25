@@ -1,28 +1,59 @@
 const { Model } = require('objection');
 const { transaction } = require('objection');
-const db = require('./knexfile.ts')
+const db = require('./knexfile.ts');
 
 // pass the knex connection to objection
- Model.knex(db)
+// Model.knex(db);
 
 class Pokemon extends Model {
   static get tableName() {
     return 'pokemon';
   }
 
+  static get idColumn() {
+    return 'id';
+  }
+
+  static get relationMappings() {
+    const Item = require('./Item');
+
+    return {
+      item: {
+        relation: Model.HasManyRelation,
+        modelClass: Item,
+        join: {
+          from: 'pokemon.id',
+          to: 'items.pokemonId',
+        },
+      },
+    };
+  }
+
   getAll(txn) {
     try {
-      const result = await transaction(knex, async (txn) => {
+      const result = await transaction(knex, async txn => {
         const pokemon = await Pokemon.query(txn).orderby('pokemonNumber');
         return pokemon;
-        })
+      });
       console.log("Yazza! You have caught 'em all!");
     } catch (err) {
       console.log('Womp, you have not all the pokemon in thine pocket');
     }
   }
 
-  //get()
+  get(pokemonId: string, txn) {
+    try {
+      const result = await transaction(knex, async txn => {
+        const pokemon = await Pokemon.query(txn).findById(pokemonId);
+        const item = await item.query(txn).findById(pokemonId);
+        // have to join the two datasets
+        return pokemon;
+      });
+      console.log('Woop! you got a poke!');
+    } catch (err) {
+      console.log('Womp, we have no poke with that ID?');
+    }
+  }
 }
 
 module.exports = Pokemon;
